@@ -1,7 +1,6 @@
 on:
   push:
-    branches:
-      - main
+
 
 jobs:
   # Builds a new container image, and pushes it on every commit to the repository
