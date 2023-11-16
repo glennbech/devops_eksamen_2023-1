@@ -15,7 +15,7 @@ resource "aws_apprunner_service" "service" {
       image_configuration {
         port = var.port
       }
-      image_identifier      = "244530008913.dkr.ecr.eu-west-1.amazonaws.com/${var.image}:${var.imageTag}"
+      image_identifier      = var.image
       image_repository_type = "ECR"
     }
     auto_deployments_enabled = true
