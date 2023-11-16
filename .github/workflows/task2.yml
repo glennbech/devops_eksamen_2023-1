@@ -42,6 +42,7 @@ jobs:
       PREFIX: kandidat2022
     steps:
 
+
       - uses: actions/checkout@v3
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -54,6 +55,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan   -var="prefix=$PREFIX" -var="image=$IMAGE"  -no-color
+        working-directory: ./infra
         continue-on-error: true
 
       - name: Terraform Plan Status
@@ -62,3 +64,4 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -var="prefix=$PREFIX" -var="image=$IMAGE"  -auto-approve
+        working-directory: ./infra
