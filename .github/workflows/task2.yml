@@ -49,13 +49,13 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
         working-directory: ./infra
+        run: terraform init
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan   -var="prefix=$PREFIX" -var="image=$IMAGE"  -no-color
         working-directory: ./infra
+        run: terraform plan   -var="prefix=$PREFIX" -var="image=$IMAGE"  -no-color
         continue-on-error: true
 
       - name: Terraform Plan Status
@@ -63,5 +63,5 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
-        run: terraform apply -var="prefix=$PREFIX" -var="image=$IMAGE"  -auto-approve
         working-directory: ./infra
+        run: terraform apply -var="prefix=$PREFIX" -var="image=$IMAGE"  -auto-approve
