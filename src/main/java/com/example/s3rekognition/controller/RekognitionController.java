@@ -117,7 +117,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             if(!violation) {
                 meterRegistry.counter("violations").increment();
             } else {
-                meterRegistry.counter("none violations").increment();
+                meterRegistry.counter("none-violations").increment();
             }
 
             logger.info("scanning " + image.getKey() + ", violation result " + violation);
