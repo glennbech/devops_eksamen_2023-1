@@ -36,7 +36,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final AmazonRekognition rekognitionClient;
     private final MeterRegistry meterRegistry;
 
-    private static Map<String,DetectModerationLabelsResult> dangers = new HashMap<>();
+    private static final Map<String,ModerationClassificationResponse> dangers = new HashMap<>();
 
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
@@ -47,6 +47,27 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         this.rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion(Regions.EU_WEST_1).build();
         this.meterRegistry = meterRegistry;
     }
+
+
+    @GetMapping(value = "/get-danger", consumes = "*/*", produces = "application/json")
+    public ResponseEntity<ModerationResponse> getAllDangers(){
+
+        List<ModerationClassificationResponse> classificationResponses = new ArrayList<>(dangers.values());
+
+        ModerationResponse response = new ModerationResponse("", classificationResponses);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping(value = "/handle-danger", consumes = "*/*", produces = "application/json")
+    public ResponseEntity<ModerationResponse> handleDanger(@RequestParam String imageKey){
+
+        dangers.remove(imageKey);
+        List<ModerationClassificationResponse> classificationResponses = new ArrayList<>(dangers.values());
+
+        ModerationResponse response = new ModerationResponse("", classificationResponses);
+        return ResponseEntity.ok(response);
+    }
+
+
 
     @GetMapping(value = "/scan-moderation", consumes = "*/*", produces = "application/json")
     public ResponseEntity<ModerationResponse> scanForStuff(@RequestParam String bucketName){
@@ -71,13 +92,14 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
 
             boolean violation  = isViolation(result);
-            if(violation) {
-                dangers.put(image.getKey(), result);
-            }
+
             logger.info("scanning " + image.getKey() + ", violation result " + violation);
 
             ModerationClassificationResponse classification = new ModerationClassificationResponse(image.getKey(), violation, result.getModerationLabels());
             classificationResponses.add(classification);
+            if(violation) {
+                dangers.put(image.getKey(), classification);
+            }
         }
 
         ModerationResponse response = new ModerationResponse(bucketName, classificationResponses);
