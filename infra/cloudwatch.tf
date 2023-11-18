@@ -51,13 +51,13 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.prefix}",
-            "danger-violation.count"
+            "danger-violation.value"
           ]
         ],
         "period": 300,
         "stat": "Maximum",
         "region": "eu-west-1",
-        "title": "Total number of non violations"
+        "title": "DANGER"
       }
     }
   ]

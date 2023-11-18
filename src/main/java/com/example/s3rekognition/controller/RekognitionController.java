@@ -13,6 +13,7 @@ import com.example.s3rekognition.ModerationResponse;
 import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -22,7 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 
@@ -32,6 +35,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final AmazonS3 s3Client;
     private final AmazonRekognition rekognitionClient;
     private final MeterRegistry meterRegistry;
+
+    private static Map<String,DetectModerationLabelsResult> dangers = new HashMap<>();
 
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
@@ -67,7 +72,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
             boolean violation  = isViolation(result);
             if(violation) {
-                meterRegistry.counter("danger-violation").increment();
+                dangers.put(image.getKey(), result);
+x
             }
             logger.info("scanning " + image.getKey() + ", violation result " + violation);
 
@@ -145,6 +151,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-
+//        meterRegistry.gauge("danger-violation",dangers.size());
+        Gauge.builder("danger-violation", dangers, Map::size).register(meterRegistry);
     }
 }
