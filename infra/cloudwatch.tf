@@ -13,7 +13,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.prefix}",
-            "violations.value"
+            "violations.count"
           ]
         ],
         "period": 300,
@@ -32,7 +32,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.prefix}",
-            "none-violations.value"
+            "none-violations.count"
           ]
         ],
         "period": 300,
