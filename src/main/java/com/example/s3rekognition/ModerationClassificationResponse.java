@@ -17,6 +17,7 @@ public class ModerationClassificationResponse {
         this.categories = categories.stream().map(ModerationLabel::getName).collect(Collectors.toList());
     }
 
+
     public String getFileName() {
         return fileName;
     }

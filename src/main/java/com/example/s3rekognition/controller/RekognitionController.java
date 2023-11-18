@@ -31,8 +31,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
     private final AmazonS3 s3Client;
     private final AmazonRekognition rekognitionClient;
-
-    private MeterRegistry meterRegistry;
+    private final MeterRegistry meterRegistry;
 
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
@@ -67,6 +66,9 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
 
             boolean violation  = isViolation(result);
+            if(violation){
+                meterRegistry.counter("danger-violation").increment();
+            }
             logger.info("scanning " + image.getKey() + ", violation result " + violation);
 
             ModerationClassificationResponse classification = new ModerationClassificationResponse(image.getKey(), violation, result.getModerationLabels());
@@ -135,7 +137,6 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private static boolean isViolation(DetectModerationLabelsResult result){
         List<String> strings = new ArrayList<>();
         strings.add("violence");
-        strings.add("drugs");
         return result.getModerationLabels()
                 .stream()
                 .anyMatch(l -> strings.contains(l.getName().toLowerCase()));
