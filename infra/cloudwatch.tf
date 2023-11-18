@@ -51,7 +51,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.prefix}",
-            "danger-violations.value"
+            "kandidat2022 danger-violation.count"
           ]
         ],
         "period": 300,
