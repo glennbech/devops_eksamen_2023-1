@@ -73,7 +73,6 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             boolean violation  = isViolation(result);
             if(violation) {
                 dangers.put(image.getKey(), result);
-x
             }
             logger.info("scanning " + image.getKey() + ", violation result " + violation);
 
