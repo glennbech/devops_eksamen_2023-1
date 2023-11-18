@@ -12,6 +12,7 @@ import com.example.s3rekognition.ModerationClassificationResponse;
 import com.example.s3rekognition.ModerationResponse;
 import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -86,6 +87,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
      */
     @GetMapping(value = "/scan-ppe", consumes = "*/*", produces = "application/json")
     @ResponseBody
+    @Timed
     public ResponseEntity<PPEResponse> scanForPPE(@RequestParam String bucketName) {
         // List all objects in the S3 bucket
         ListObjectsV2Result imageList = s3Client.listObjectsV2(bucketName);
