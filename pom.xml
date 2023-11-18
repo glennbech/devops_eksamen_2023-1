@@ -50,8 +50,7 @@
 
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-clou
-                dwatch2</artifactId>
+            <artifactId>micrometer-registry-cloudwatch2</artifactId>
         </dependency>
 
     </dependencies>
