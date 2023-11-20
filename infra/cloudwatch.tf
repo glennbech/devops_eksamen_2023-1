@@ -13,7 +13,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.prefix}",
-            "scan.count.count",
+            "scan.count",
             "PPE",
             "violations"
           ]
@@ -34,7 +34,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.prefix}",
-            "scan.count.count",
+            "scan.count",
             "PPE",
             "none-violations"
           ]
