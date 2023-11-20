@@ -7,6 +7,10 @@ variable "image" {
 }
 
 variable "port" {
-  type = string
+  type    = string
   default = "8080"
+}
+
+variable "alarm_email" {
+  type = string
 }
