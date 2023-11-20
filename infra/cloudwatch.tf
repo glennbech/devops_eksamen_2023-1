@@ -93,3 +93,8 @@ resource "aws_cloudwatch_dashboard" "main" {
 }
 THEREBEDRAGONS
 }
+module "alarm" {
+  source = "../alarm"
+  alarm_email = var.alarm_email
+  prefix = var.prefix
+}
