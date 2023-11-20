@@ -12,6 +12,8 @@ resource "aws_cloudwatch_dashboard" "main" {
           [ "kandidat2022", "scan-ppe.duration" ],
           [ "kandidat2022", "scan-danger.duration" ]
       ],
+      "period": 300,
+      "stat": "Maximum",
       "region": "eu-west-1",
       "title": "Scan duration"
       }
