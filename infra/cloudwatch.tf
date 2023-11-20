@@ -55,7 +55,7 @@ resource "aws_cloudwatch_dashboard" "main" {
         "metrics": [
           [
             "${var.prefix}",
-            danger-violation.value",
+            "danger-violation.value",
             "Weapon",
             "Found"
           ]
