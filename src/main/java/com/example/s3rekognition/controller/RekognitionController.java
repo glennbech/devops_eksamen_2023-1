@@ -84,7 +84,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 //
 
 //        LongTaskTimer.Sample currentTaskId = longTaskTimer.start();
-        LongTaskTimer longTaskTimer = LongTaskTimer.builder("scan-danger-time").register(meterRegistry);
+        LongTaskTimer longTaskTimer = LongTaskTimer.builder("scan-danger").register(meterRegistry);
         LongTaskTimer.Sample currentTaskId = longTaskTimer.start();
 
         for (S3ObjectSummary image : images) {
@@ -138,7 +138,7 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
 //        Timer timer = meterRegistry.timer("test-timer");
         // Iterate over each object and scan for PPE
-        LongTaskTimer longTaskTimer = LongTaskTimer.builder("scan-ppe-time").register(meterRegistry);
+        LongTaskTimer longTaskTimer = LongTaskTimer.builder("scan-ppe").register(meterRegistry);
         LongTaskTimer.Sample currentTaskId = longTaskTimer.start();
         for (S3ObjectSummary image : images) {
             logger.info("scanning " + image.getKey());

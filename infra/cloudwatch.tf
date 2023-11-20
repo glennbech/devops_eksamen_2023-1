@@ -4,6 +4,15 @@ resource "aws_cloudwatch_dashboard" "main" {
 {
   "widgets": [
     {
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+            [ "kandidat2022", "scan-ppe.duration" ],
+            [ "kandidat2022", "scan-danger.duration" ]
+        ],
+        "region": "eu-west-1"
+    }
+    {
       "type": "metric",
       "x": 0,
       "y": 0,
