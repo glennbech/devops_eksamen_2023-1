@@ -14,7 +14,9 @@ import com.example.s3rekognition.PPEClassificationResponse;
 import com.example.s3rekognition.PPEResponse;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -36,7 +38,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     private final AmazonRekognition rekognitionClient;
     private final MeterRegistry meterRegistry;
 
-    private static final Map<String,ModerationClassificationResponse> dangers = new HashMap<>();
+
+    private static final Map<String, ModerationClassificationResponse> dangers = new HashMap<>();
 
 
     private static final Logger logger = Logger.getLogger(RekognitionController.class.getName());
@@ -50,15 +53,16 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
 
     @GetMapping(value = "/get-danger", consumes = "*/*", produces = "application/json")
-    public ResponseEntity<ModerationResponse> getAllDangers(){
+    public ResponseEntity<ModerationResponse> getAllDangers() {
 
         List<ModerationClassificationResponse> classificationResponses = new ArrayList<>(dangers.values());
 
         ModerationResponse response = new ModerationResponse("", classificationResponses);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping(value = "/handle-danger", consumes = "*/*", produces = "application/json")
-    public ResponseEntity<ModerationResponse> handleDanger(@RequestParam String imageKey){
+    public ResponseEntity<ModerationResponse> handleDanger(@RequestParam String imageKey) {
 
         dangers.remove(imageKey);
         List<ModerationClassificationResponse> classificationResponses = new ArrayList<>(dangers.values());
@@ -68,9 +72,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     }
 
 
-
     @GetMapping(value = "/scan-moderation", consumes = "*/*", produces = "application/json")
-    public ResponseEntity<ModerationResponse> scanForStuff(@RequestParam String bucketName){
+    public ResponseEntity<ModerationResponse> scanForStuff(@RequestParam String bucketName) {
         ListObjectsV2Result imageList = s3Client.listObjectsV2(bucketName);
 
         // This will hold all of our classifications
@@ -78,6 +81,11 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
         // This is all the images in the bucket
         List<S3ObjectSummary> images = imageList.getObjectSummaries();
+//
+
+//        LongTaskTimer.Sample currentTaskId = longTaskTimer.start();
+        LongTaskTimer longTaskTimer = LongTaskTimer.builder("scan-danger-time").register(meterRegistry);
+        LongTaskTimer.Sample currentTaskId = longTaskTimer.start();
 
         for (S3ObjectSummary image : images) {
             logger.info("scanning " + image.getKey());
@@ -91,16 +99,17 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             DetectModerationLabelsResult result = rekognitionClient.detectModerationLabels(request);
 
 
-            boolean violation  = isViolation(result);
+            boolean violation = isViolation(result);
 
             logger.info("scanning " + image.getKey() + ", violation result " + violation);
 
             ModerationClassificationResponse classification = new ModerationClassificationResponse(image.getKey(), violation, result.getModerationLabels());
             classificationResponses.add(classification);
-            if(violation) {
+            if (violation) {
                 dangers.put(image.getKey(), classification);
             }
         }
+        currentTaskId.stop();
 
         ModerationResponse response = new ModerationResponse(bucketName, classificationResponses);
         return ResponseEntity.ok(response);
@@ -127,7 +136,10 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
         // This is all the images in the bucket
         List<S3ObjectSummary> images = imageList.getObjectSummaries();
 
+//        Timer timer = meterRegistry.timer("test-timer");
         // Iterate over each object and scan for PPE
+        LongTaskTimer longTaskTimer = LongTaskTimer.builder("scan-ppe-time").register(meterRegistry);
+        LongTaskTimer.Sample currentTaskId = longTaskTimer.start();
         for (S3ObjectSummary image : images) {
             logger.info("scanning " + image.getKey());
 
@@ -145,10 +157,10 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
 
             // If any person on an image lacks PPE on the face, it's a violation of regulations
             boolean violation = !result.getSummary().getPersonsWithoutRequiredEquipment().isEmpty();
-            if(!violation) {
-                meterRegistry.counter("violations").increment();
+            if (!violation) {
+                meterRegistry.counter("scan", "PPE", "violations").increment();
             } else {
-                meterRegistry.counter("none-violations").increment();
+                meterRegistry.counter("scan", "PPE", "none-violations").increment();
             }
 
             logger.info("scanning " + image.getKey() + ", violation result " + violation);
@@ -157,11 +169,12 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
             PPEClassificationResponse classification = new PPEClassificationResponse(image.getKey(), personCount, violation);
             classificationResponses.add(classification);
         }
+        currentTaskId.stop();
         PPEResponse ppeResponse = new PPEResponse(bucketName, classificationResponses);
         return ResponseEntity.ok(ppeResponse);
     }
 
-    private static boolean isViolation(DetectModerationLabelsResult result){
+    private static boolean isViolation(DetectModerationLabelsResult result) {
         List<String> strings = new ArrayList<>();
         strings.add("violence");
         return result.getModerationLabels()
@@ -173,6 +186,8 @@ public class RekognitionController implements ApplicationListener<ApplicationRea
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
 //        meterRegistry.gauge("danger-violation",dangers.size());
-        Gauge.builder("danger-violation", dangers, Map::size).register(meterRegistry);
+        Gauge.builder("danger-violation", dangers, Map::size).tags("Weapon","Found").register(meterRegistry);
+//        Gauge.builder("danger-violation",() -> kake).register(meterRegistry);
+//        longTaskTimer = LongTaskTimer.builder("danger-timer").register(meterRegistry);
     }
 }
