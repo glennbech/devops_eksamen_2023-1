@@ -7,11 +7,15 @@ resource "aws_cloudwatch_dashboard" "main" {
       "type": "metric",
       "view": "timeSeries",
       "stacked": false,
+      "properties":{
       "metrics": [
           [ "kandidat2022", "scan-ppe.duration" ],
           [ "kandidat2022", "scan-danger.duration" ]
       ],
-      "region": "eu-west-1"
+      "region": "eu-west-1",
+      "title": "Scan duration"
+      }
+
     },
     {
       "type": "metric",
