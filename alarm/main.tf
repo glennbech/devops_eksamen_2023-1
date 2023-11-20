@@ -2,7 +2,7 @@ resource "aws_cloudwatch_metric_alarm" "threshold" {
   alarm_name  = "${var.prefix}-threshold"
   namespace   = var.prefix
   metric_name = "danger-violation.value"
-  tags = {"Weapon": "Found"}
+  dimensions = {"Weapon": "Found"}
 
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.threshold
