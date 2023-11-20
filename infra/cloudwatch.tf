@@ -11,7 +11,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             [ "kandidat2022", "scan-danger.duration" ]
         ],
         "region": "eu-west-1"
-    }
+    },
     {
       "type": "metric",
       "x": 0,
