@@ -39,8 +39,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: eu-west-1
       IMAGE: 244530008913.dkr.ecr.eu-west-1.amazonaws.com/kandidat2022:latest
-      PREFIX: ${{ env.PREFIX }}
-      EMAIL: ${{ env.EMAIL }}
+      PREFIX: kandidat2022
+      EMAIL: lullinj98@gmail.com
     steps:
 
 
